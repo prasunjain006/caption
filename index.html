@@ -2,80 +2,63 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Universal AI Architect | All-in-One Content Tool</title>
+    <title>Universal AI Engine | One Tool, Every Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020617; color: #f1f5f9; }
-        .glass-panel { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .accent-gradient { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); }
-        .output-box::-webkit-scrollbar { width: 5px; }
-        .output-box::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; }
+        .master-card { background: linear-gradient(145deg, #0f172a, #020617); border: 1px solid #1e293b; }
+        .glow-btn { background: linear-gradient(90deg, #3b82f6, #8b5cf6); transition: 0.3s; }
+        .glow-btn:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); transform: scale(1.02); }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4 md:p-6">
+<body class="min-h-screen flex items-center justify-center p-6">
 
-    <div class="max-w-6xl w-full grid lg:grid-cols-2 gap-6">
-        
-        <div class="glass-panel p-8 rounded-[2rem] shadow-2xl space-y-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <i class="fas fa-bolt text-yellow-400 text-xl"></i>
-                    <h1 class="text-xl font-800 tracking-tight uppercase italic">Universal AI</h1>
-                </div>
-                <span class="text-[10px] bg-slate-800 px-2 py-1 rounded-md text-slate-400">v2.0 PRODUCTION</span>
+    <div class="max-w-5xl w-full master-card p-10 rounded-[3rem] shadow-2xl">
+        <div class="flex items-center justify-between mb-10">
+            <h1 class="text-3xl font-black italic tracking-tighter">ULTIMATE <span class="text-blue-500">ENGINE</span></h1>
+            <div class="flex space-x-2">
+                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
             </div>
-
-            <div class="space-y-3">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Select Platform / Category</label>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <button onclick="setCategory('LinkedIn')" class="cat-btn p-3 rounded-xl bg-slate-800 text-[10px] font-bold border border-slate-700 hover:border-blue-500 transition-all">LINKEDIN</button>
-                    <button onclick="setCategory('Instagram')" class="cat-btn p-3 rounded-xl bg-slate-800 text-[10px] font-bold border border-slate-700 hover:border-pink-500 transition-all">INSTAGRAM</button>
-                    <button onclick="setCategory('Birthday')" class="cat-btn p-3 rounded-xl bg-slate-800 text-[10px] font-bold border border-slate-700 hover:border-yellow-500 transition-all">BIRTHDAY</button>
-                    <button onclick="setCategory('Generic')" class="cat-btn p-3 rounded-xl bg-blue-600 text-[10px] font-bold border border-blue-400 transition-all">GENERAL</button>
-                </div>
-            </div>
-
-            <div class="relative group h-48 border-2 border-dashed border-slate-800 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-800/30 transition-all overflow-hidden" onclick="document.getElementById('imgInp').click()">
-                <input type="file" id="imgInp" class="hidden" accept="image/*">
-                <img id="imgPrev" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl opacity-40">
-                <div id="upInfo" class="text-center z-10">
-                    <i class="fas fa-camera-retro text-2xl mb-2 text-slate-500"></i>
-                    <p class="text-[10px] font-bold text-slate-400">OPTIONAL: UPLOAD PHOTO REF</p>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">What is it about?</label>
-                <textarea id="context" rows="4" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-sm focus:border-blue-500 outline-none resize-none" placeholder="Explain the situation or person..."></textarea>
-            </div>
-
-            <button id="execBtn" class="accent-gradient w-full py-4 rounded-2xl font-bold text-white shadow-xl flex items-center justify-center space-x-3 active:scale-95 transition-transform">
-                <i class="fas fa-rocket"></i>
-                <span>GENERATE CONTENT</span>
-            </button>
         </div>
 
-        <div class="glass-panel p-8 rounded-[2rem] flex flex-col h-full border-white/5">
-            <div class="flex justify-between items-center mb-6">
-                <h3 id="currentCat" class="text-[10px] font-bold uppercase tracking-[0.3em] text-blue-400">GENERAL MODE</h3>
-                <div class="flex space-x-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
-                    <div class="w-1.5 h-1.5 rounded-full bg-slate-700"></div>
+        <div class="grid lg:grid-cols-2 gap-12">
+            <div class="space-y-8">
+                <div class="relative h-64 group">
+                    <input type="file" id="fileInp" class="hidden" accept="image/*">
+                    <div onclick="document.getElementById('fileInp').click()" class="h-full border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center cursor-pointer group-hover:border-blue-500 transition-all bg-slate-900/30 overflow-hidden relative">
+                        <img id="prev" class="hidden absolute inset-0 w-full h-full object-cover rounded-3xl opacity-60">
+                        <i class="fas fa-plus-circle text-4xl text-slate-700 group-hover:text-blue-500 mb-2 z-10"></i>
+                        <p class="text-xs font-bold text-slate-500 z-10 uppercase tracking-widest">Drop Any Ref (Photo/Doc)</p>
+                    </div>
                 </div>
-            </div>
 
-            <div id="aiOut" class="output-box flex-grow text-slate-300 text-sm leading-relaxed whitespace-pre-line overflow-y-auto max-h-[450px]">
-                I am ready. Tell me what you need—be it a professional LinkedIn post, a cool Instagram caption, or a heartfelt birthday wish.
-            </div>
+                <div class="space-y-4">
+                    <label class="text-[10px] font-bold text-slate-500 tracking-[0.3em]">CONTEXT / COMMAND</label>
+                    <textarea id="cmd" rows="5" class="w-full bg-black/50 border border-slate-800 rounded-2xl p-5 text-sm focus:border-blue-500 outline-none transition" placeholder="e.g. 'Write a roast for my friend's birthday' or 'Formal email for internship' or 'Viral Instagram caption for this outfit'"></textarea>
+                </div>
 
-            <div class="mt-6 pt-4 border-t border-slate-800 flex justify-between items-center">
-                <button onclick="copyContent()" class="text-[10px] font-black text-slate-400 hover:text-white flex items-center">
-                    <i class="far fa-copy mr-2"></i> COPY TO CLIPBOARD
+                <button id="fire" class="glow-btn w-full py-5 rounded-2xl font-black text-sm tracking-widest flex items-center justify-center space-x-3">
+                    <span>GENERATE MAGIC</span>
+                    <i class="fas fa-bolt"></i>
                 </button>
-                <p class="text-[9px] text-slate-600 font-mono italic">Powered by Gemini AI v1.5</p>
+            </div>
+
+            <div class="bg-black/40 rounded-[2rem] p-8 border border-slate-800 flex flex-col min-h-[400px]">
+                <div class="flex justify-between items-center mb-6">
+                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest">AI Output Hub</p>
+                    <i class="fas fa-robot text-slate-700"></i>
+                </div>
+                <div id="out" class="flex-grow text-slate-300 text-sm leading-relaxed whitespace-pre-line overflow-y-auto max-h-[450px] font-medium italic">
+                    Tell me anything. I'll handle the platform, the tone, and the emojis. I'm built for everything.
+                </div>
+                <div class="mt-8 flex justify-end pt-4 border-t border-slate-800">
+                    <button onclick="copy()" class="text-[10px] font-bold hover:text-white transition uppercase tracking-widest flex items-center">
+                        <i class="far fa-copy mr-2"></i> COPY
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -83,84 +66,72 @@
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // CONFIGURATION
+        // FIXED KEY & MODEL logic 
         const API_KEY = "AIzaSyAI4jWds7kAREHPPS_4KAa1RxFvHwHk4OI"; 
         const genAI = new GoogleGenerativeAI(API_KEY);
-        let activeCategory = "General";
 
-        // DOM ELEMENTS
-        const imgInp = document.getElementById('imgInp');
-        const imgPrev = document.getElementById('imgPrev');
-        const upInfo = document.getElementById('upInfo');
-        const execBtn = document.getElementById('execBtn');
-        const aiOut = document.getElementById('aiOut');
-        const currentCatLabel = document.getElementById('currentCat');
+        const fInp = document.getElementById('fileInp');
+        const prev = document.getElementById('prev');
+        const cmd = document.getElementById('cmd');
+        const out = document.getElementById('out');
+        const btn = document.getElementById('fire');
 
-        // Global function to set category
-        window.setCategory = (cat) => {
-            activeCategory = cat;
-            currentCatLabel.innerText = cat + " MODE";
-            // Visual feedback
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.replace('bg-blue-600', 'bg-slate-800'));
-            event.target.classList.replace('bg-slate-800', 'bg-blue-600');
-        }
-
-        imgInp.onchange = () => {
-            const [file] = imgInp.files;
+        fInp.onchange = () => {
+            const [file] = fInp.files;
             if (file) {
-                imgPrev.src = URL.createObjectURL(file);
-                imgPrev.classList.remove('hidden');
-                upInfo.classList.add('opacity-0');
+                prev.src = URL.createObjectURL(file);
+                prev.classList.remove('hidden');
             }
         };
 
-        async function toAiPart(file) {
-            const base64 = await new Promise((r) => {
+        async function toPart(file) {
+            const b64 = await new Promise(r => {
                 const rd = new FileReader();
                 rd.onloadend = () => r(rd.result.split(',')[1]);
                 rd.readAsDataURL(file);
             });
-            return { inlineData: { data: base64, mimeType: file.type } };
+            return { inlineData: { data: b64, mimeType: file.type } };
         }
 
-        execBtn.onclick = async () => {
-            const file = imgInp.files[0];
-            const context = document.getElementById('context').value;
+        btn.onclick = async () => {
+            const file = fInp.files[0];
+            const text = cmd.value;
+            if(!text && !file) return;
 
-            if(!context && !file) return alert("Kuch toh likho ya photo dalo!");
-
-            aiOut.innerHTML = "<div class='animate-pulse'>Thinking... Processing the perfect message for you...</div>";
-            execBtn.disabled = true;
+            out.innerHTML = "<div class='animate-pulse text-blue-400'>Analyzing intent... Orchestrating response...</div>";
+            btn.disabled = true;
 
             try {
-                // FIXED: Use gemini-1.5-flash-latest to avoid 404
+                // Using latest flash to prevent 404 
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
                 
-                let prompt = `Act as a creative content writer. Generate content for ${activeCategory}. 
-                If it's LinkedIn, make it professional. 
-                If Instagram, make it trendy with emojis and hashtags. 
-                If Birthday, make it warm and personalized. 
-                If a photo is provided, incorporate its details naturally.
-                Category specifics: ${activeCategory}.
-                User Input: ${context}`;
+                let masterPrompt = `You are an All-Rounder Content Architect.
+                Detect the user's intent from the context: ${text}.
+                - If they want to wish someone, write a heartfelt birthday/anniversary message.
+                - If it's for Instagram, provide 3 options (Witty, Short, Aesthetic) with emojis.
+                - If it's professional, write a high-impact LinkedIn post or Email.
+                - If it's a roast, be funny but safe.
+                - If there's an image, incorporate visual details into the text.
+                Always provide the best structure for the detected platform.`;
 
-                const payload = [prompt];
-                if (file) payload.push(await toAiPart(file));
+                const payload = [masterPrompt];
+                if (file) payload.push(await toPart(file));
 
                 const result = await model.generateContent(payload);
-                aiOut.innerText = result.response.text();
+                out.innerText = result.response.text();
+                out.classList.remove('italic');
             } catch (err) {
-                aiOut.innerText = "Error: Model not found or API issue. Check if gemini-1.5-flash-latest is enabled in your AI Studio.";
+                out.innerText = "Error in System Matrix. Check API/Connection.";
                 console.error(err);
             } finally {
-                execBtn.disabled = false;
+                btn.disabled = false;
             }
         };
 
-        window.copyContent = () => {
-            navigator.clipboard.writeText(aiOut.innerText);
-            alert("Copied!");
-        };
+        window.copy = () => {
+            navigator.clipboard.writeText(out.innerText);
+            alert("Copied to clipboard!");
+        }
     </script>
 </body>
 </html>
