@@ -3,660 +3,356 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Universal AI Content Engine</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<title>CaptionAI — Social Media Caption Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
   :root {
-    --cyan: #00f5ff;
-    --magenta: #ff00ff;
-    --green: #00ff88;
-    --amber: #ffb800;
-    --bg: #050810;
-    --surface: rgba(255,255,255,0.03);
-    --surface2: rgba(255,255,255,0.06);
-    --border: rgba(0,245,255,0.15);
-    --border2: rgba(0,245,255,0.35);
-    --text: #c8d8e8;
-    --text-dim: #5a7080;
+    --black: #111111;
+    --gray-900: #1a1a1a;
+    --gray-600: #6b6b6b;
+    --gray-400: #a0a0a0;
+    --gray-200: #e8e8e8;
+    --gray-100: #f4f4f2;
+    --gray-50: #fafaf8;
+    --white: #ffffff;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --radius: 12px;
+    --radius-sm: 8px;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-    font-size: 15px;
-  }
-
-  /* Grid bg */
-  body::before {
-    content: '';
-    position: fixed; inset: 0; z-index: 0;
-    background-image:
-      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-  }
-  body::after {
-    content: '';
-    position: fixed; inset: 0; z-index: 0;
-    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,245,255,0.04) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
-
-  /* Header */
-  header { padding: 2.5rem 0 2rem; text-align: center; }
-  .logo-text {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(1.4rem, 4vw, 2.2rem);
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--cyan));
-    background-size: 200%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: shimmer 4s linear infinite;
-  }
-  @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
-  .logo-sub {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--cyan);
-    letter-spacing: 0.25em;
-    opacity: 0.6;
-    margin-top: 6px;
-  }
-  .mode-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 1.2rem; }
-  .badge {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.65rem;
-    padding: 4px 10px;
-    border-radius: 2px;
-    letter-spacing: 0.1em;
-    border: 0.5px solid;
-  }
-  .badge-cyan  { border-color: var(--cyan); color: var(--cyan); background: rgba(0,245,255,0.06); }
-  .badge-mag   { border-color: var(--magenta); color: var(--magenta); background: rgba(255,0,255,0.06); }
-  .badge-green { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.06); }
-  .badge-amb   { border-color: var(--amber); color: var(--amber); background: rgba(255,184,0,0.06); }
-
-  /* Main grid */
-  .main-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-    margin-bottom: 1.25rem;
-  }
-  @media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
-
-  /* Glass panel */
-  .panel {
-    background: var(--surface);
-    border: 0.5px solid var(--border);
-    border-radius: 4px;
-    padding: 1.25rem;
-    position: relative;
-    overflow: hidden;
-    transition: border-color 0.3s;
-  }
-  .panel::before {
-    content: '';
-    position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-    opacity: 0.4;
-  }
-  .panel:hover { border-color: var(--border2); }
-  .panel-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.18em;
-    color: var(--cyan);
-    opacity: 0.7;
-    margin-bottom: 0.9rem;
-    text-transform: uppercase;
-  }
-
-  /* Upload zone */
-  .upload-zone {
-    border: 1px dashed rgba(0,245,255,0.25);
-    border-radius: 4px;
-    padding: 2rem 1rem;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.25s;
-    background: transparent;
-    position: relative;
-  }
-  .upload-zone:hover, .upload-zone.dragover {
-    border-color: var(--cyan);
-    background: rgba(0,245,255,0.04);
-  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--gray-50); color: var(--black); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+  .topbar { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 1.35rem; letter-spacing: -0.02em; }
+  .logo span { color: var(--accent); font-style: italic; }
+  .api-pill { display: flex; align-items: center; gap: 8px; background: var(--gray-100); border: 1px solid var(--gray-200); border-radius: 999px; padding: 6px 14px 6px 10px; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; color: var(--gray-600); }
+  .api-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .api-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gray-400); transition: background 0.3s; }
+  .api-dot.connected { background: var(--green); }
+  .page { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+  .hero { text-align: center; margin-bottom: 2.5rem; }
+  .hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 0.6rem; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p { color: var(--gray-600); font-size: 0.95rem; font-weight: 300; }
+  .platforms { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 2rem; }
+  .plat-pill { display: flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 500; border: 1px solid var(--gray-200); background: var(--white); color: var(--gray-600); }
+  .plat-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .ig .dot { background: #e1306c; } .ig { border-color: #fce7f0; }
+  .li .dot { background: #0077b5; } .li { border-color: #dbeafe; }
+  .tw .dot { background: #000; }    .tw { border-color: var(--gray-200); }
+  .wa .dot { background: #25d366; } .wa { border-color: #dcfce7; }
+  .fb .dot { background: #1877f2; } .fb { border-color: #dbeafe; }
+  .card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; }
+  .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--gray-100); display: flex; align-items: center; gap: 10px; }
+  .card-header-title { font-size: 0.82rem; font-weight: 500; color: var(--gray-600); }
+  .card-body { padding: 1.25rem; }
+  .upload-zone { border: 1.5px dashed var(--gray-200); border-radius: var(--radius-sm); padding: 2.5rem 1rem; text-align: center; cursor: pointer; transition: all 0.2s; position: relative; background: var(--gray-50); }
+  .upload-zone:hover, .upload-zone.dragover { border-color: var(--accent); background: var(--accent-light); }
   .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; }
-  .upload-text { font-size: 0.8rem; color: var(--text-dim); }
-  .upload-text span { color: var(--cyan); }
-  #preview-wrap { margin-top: 1rem; display: none; }
-  #preview-wrap img { max-width: 100%; max-height: 200px; border-radius: 4px; border: 0.5px solid var(--border); object-fit: contain; display: block; margin: 0 auto; }
-  .remove-img {
-    margin-top: 6px; font-size: 0.72rem; color: var(--magenta);
-    cursor: pointer; text-align: center; font-family: 'Share Tech Mono', monospace;
-    letter-spacing: 0.08em; opacity: 0.7;
-  }
-  .remove-img:hover { opacity: 1; }
-
-  /* Textarea */
-  textarea {
-    width: 100%; background: rgba(0,0,0,0.3); border: 0.5px solid var(--border);
-    border-radius: 4px; color: var(--text); font-family: 'Inter', sans-serif;
-    font-size: 0.88rem; padding: 0.75rem; resize: vertical; min-height: 110px;
-    outline: none; transition: border-color 0.2s; line-height: 1.6;
-  }
-  textarea:focus { border-color: rgba(0,245,255,0.5); }
-  textarea::placeholder { color: var(--text-dim); }
-
-  /* Mode selector */
-  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.75rem; }
-  .mode-btn {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.68rem;
-    padding: 8px 6px;
-    border-radius: 3px;
-    cursor: pointer;
-    border: 0.5px solid rgba(255,255,255,0.1);
-    background: var(--surface2);
-    color: var(--text-dim);
-    text-align: center;
-    letter-spacing: 0.06em;
-    transition: all 0.2s;
-    line-height: 1.4;
-  }
-  .mode-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-  .mode-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,245,255,0.08); }
-  .mode-btn .mode-icon { font-size: 1rem; display: block; margin-bottom: 3px; }
-
-  /* Generate button */
-  .generate-btn {
-    width: 100%; margin-top: 1.1rem;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.78rem; font-weight: 700;
-    letter-spacing: 0.2em;
-    padding: 0.9rem;
-    border-radius: 3px;
-    cursor: pointer;
-    border: 1px solid var(--cyan);
-    background: linear-gradient(135deg, rgba(0,245,255,0.12), rgba(255,0,255,0.08));
-    color: var(--cyan);
-    transition: all 0.2s;
-    position: relative; overflow: hidden;
-    text-transform: uppercase;
-  }
-  .generate-btn::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(0,245,255,0.2), rgba(255,0,255,0.15));
-    opacity: 0; transition: opacity 0.2s;
-  }
-  .generate-btn:hover::before { opacity: 1; }
-  .generate-btn:hover { box-shadow: 0 0 20px rgba(0,245,255,0.25), 0 0 40px rgba(255,0,255,0.1); }
-  .generate-btn:active { transform: scale(0.99); }
-  .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .generate-btn span { position: relative; z-index: 1; }
-
-  /* Output panel */
-  .output-panel { grid-column: 1 / -1; }
-  @media (max-width: 700px) { .output-panel { grid-column: 1; } }
-
-  #output-area { min-height: 140px; }
-  .output-placeholder {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--text-dim);
-    letter-spacing: 0.08em;
-    padding: 2rem 0;
-    text-align: center;
-    opacity: 0.5;
-  }
-
-  /* Detected mode chip */
-  #mode-chip {
-    display: none;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    padding: 4px 12px;
-    border-radius: 2px;
-    margin-bottom: 1rem;
-    width: fit-content;
-  }
-
-  /* Typing animation */
-  .typing-dots { display: flex; gap: 5px; padding: 1rem 0; align-items: center; }
-  .typing-dots span {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: var(--cyan); opacity: 0.3;
-    animation: blink 1.2s infinite;
-  }
-  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
-
-  /* Output content */
-  .output-block {
-    background: rgba(0,0,0,0.2);
-    border: 0.5px solid var(--border);
-    border-radius: 4px;
-    padding: 1.1rem;
-    margin-bottom: 0.8rem;
-    position: relative;
-    animation: fadeIn 0.4s ease;
-  }
-  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
-  .output-block-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--magenta);
-    letter-spacing: 0.15em;
-    margin-bottom: 0.6rem;
-    opacity: 0.8;
-  }
-  .output-text {
-    font-size: 0.88rem;
-    line-height: 1.75;
-    color: #d0e0ec;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .output-text strong { color: var(--cyan); font-weight: 500; }
-  .copy-btn {
-    position: absolute; top: 10px; right: 10px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem; letter-spacing: 0.1em;
-    padding: 4px 10px; border-radius: 2px;
-    border: 0.5px solid rgba(0,245,255,0.3);
-    background: transparent; color: var(--cyan);
-    cursor: pointer; transition: all 0.15s;
-  }
-  .copy-btn:hover { background: rgba(0,245,255,0.1); border-color: var(--cyan); }
-  .copy-btn.copied { color: var(--green); border-color: var(--green); }
-
-  /* Toast */
-  #toast {
-    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.72rem; letter-spacing: 0.1em;
-    padding: 10px 18px; border-radius: 3px;
-    background: rgba(0,255,136,0.12);
-    border: 0.5px solid var(--green); color: var(--green);
-    opacity: 0; transform: translateY(10px);
-    transition: all 0.25s; pointer-events: none;
-  }
+  .upload-icon-wrap { width: 48px; height: 48px; border-radius: 999px; background: var(--gray-100); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; font-size: 1.3rem; }
+  .upload-main { font-size: 0.88rem; font-weight: 500; margin-bottom: 4px; }
+  .upload-sub { font-size: 0.75rem; color: var(--gray-400); }
+  #preview-wrap { display: none; margin-top: 1rem; }
+  #preview-img { max-width: 100%; max-height: 220px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200); display: block; margin: 0 auto; object-fit: contain; }
+  .remove-btn { margin-top: 8px; text-align: center; font-size: 0.75rem; color: var(--red); cursor: pointer; font-weight: 500; }
+  .remove-btn:hover { text-decoration: underline; }
+  textarea { width: 100%; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 0.75rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; color: var(--black); background: var(--white); resize: vertical; min-height: 100px; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--gray-400); }
+  .tone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 8px; }
+  .tone-btn { padding: 9px 6px; border-radius: var(--radius-sm); border: 1px solid var(--gray-200); background: var(--gray-50); font-size: 0.75rem; font-weight: 500; color: var(--gray-600); cursor: pointer; text-align: center; transition: all 0.15s; }
+  .tone-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .tone-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .tone-emoji { font-size: 1rem; display: block; margin-bottom: 3px; }
+  .gen-btn { width: 100%; padding: 0.9rem; background: var(--black); color: var(--white); border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-top: 1rem; }
+  .gen-btn:hover { background: var(--gray-900); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .gen-btn:active { transform: none; box-shadow: none; }
+  .gen-btn:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; box-shadow: none; }
+  .tip { background: var(--accent-light); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 0.7rem 1rem; font-size: 0.78rem; color: #1d4ed8; margin-top: 0.9rem; }
+  .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; padding: 1rem; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: var(--radius); padding: 1.75rem; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); animation: slideUp 0.25s ease; }
+  @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  .modal h2 { font-family: 'DM Serif Display', serif; font-size: 1.25rem; margin-bottom: 0.4rem; }
+  .modal p { font-size: 0.82rem; color: var(--gray-600); margin-bottom: 1rem; line-height: 1.5; }
+  .modal input { width: 100%; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 0.7rem 0.9rem; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; transition: border-color 0.2s; margin-bottom: 0.75rem; }
+  .modal input:focus { border-color: var(--accent); }
+  .modal-btns { display: flex; gap: 8px; }
+  .modal-save { flex: 1; padding: 0.7rem; background: var(--black); color: var(--white); border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; }
+  .modal-cancel { padding: 0.7rem 1.1rem; background: var(--gray-100); color: var(--gray-600); border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; }
+  #output-section { margin-top: 2rem; display: none; }
+  .output-title { font-family: 'DM Serif Display', serif; font-size: 1.3rem; letter-spacing: -0.02em; margin-bottom: 1rem; }
+  .plat-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; animation: fadeIn 0.4s ease both; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .plat-card-header { padding: 0.9rem 1.1rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--gray-100); }
+  .plat-name { display: flex; align-items: center; gap: 8px; }
+  .plat-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 0.72rem; font-weight: 500; }
+  .badge-ig { background: #fce7f0; color: #be185d; }
+  .badge-li { background: #dbeafe; color: #1d4ed8; }
+  .badge-tw { background: var(--gray-100); color: var(--black); }
+  .badge-wa { background: #dcfce7; color: #15803d; }
+  .badge-fb { background: #dbeafe; color: #1d4ed8; }
+  .copy-btn { font-size: 0.75rem; font-weight: 500; color: var(--gray-600); background: var(--gray-100); border: none; border-radius: var(--radius-sm); padding: 5px 12px; cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+  .copy-btn:hover { background: var(--gray-200); }
+  .copy-btn.copied { background: var(--green-light); color: var(--green); }
+  .plat-card-body { padding: 1rem 1.1rem; }
+  .caption-text { font-size: 0.88rem; line-height: 1.8; color: var(--black); white-space: pre-wrap; word-break: break-word; }
+  .char-count { font-size: 0.7rem; color: var(--gray-400); margin-top: 8px; }
+  .skeleton { background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; height: 14px; margin-bottom: 8px; }
+  @keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
+  .skeleton.w-full { width: 100%; } .skeleton.w-3q { width: 75%; } .skeleton.w-half { width: 50%; }
+  .error-card { background: var(--red-light); border: 1px solid #fecaca; border-radius: var(--radius); padding: 1rem 1.25rem; font-size: 0.85rem; color: var(--red); }
+  #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999; background: var(--black); color: var(--white); font-size: 0.8rem; padding: 10px 18px; border-radius: var(--radius-sm); opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; }
   #toast.show { opacity: 1; transform: none; }
-
-  /* Error */
-  .error-block {
-    background: rgba(255,0,80,0.06);
-    border: 0.5px solid rgba(255,0,80,0.3);
-    border-radius: 4px; padding: 1rem;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.78rem; color: #ff4060;
-    letter-spacing: 0.05em; animation: fadeIn 0.3s ease;
-  }
-
-  /* Scanline flicker on logo */
-  .scanline {
-    position: fixed; top: 0; left: 0; width: 100%; height: 2px;
-    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-    opacity: 0.15; animation: scan 8s linear infinite; pointer-events: none; z-index: 999;
-  }
-  @keyframes scan { 0%{top:0} 100%{top:100vh} }
+  @media (max-width: 600px) { .topbar { padding: 0 1rem; } .page { padding: 1.5rem 1rem 3rem; } }
 </style>
 </head>
 <body>
-<div class="scanline"></div>
-<div id="toast">✓ Copied to clipboard</div>
 
-<div class="container">
-  <header>
-    <div class="logo-text">UNIVERSAL AI CONTENT ENGINE</div>
-    <div class="logo-sub">ZERO-INPUT ORCHESTRATOR · VISION + CONTEXT</div>
-    <div class="mode-badges">
-      <span class="badge badge-cyan">⚡ LinkedIn Mode</span>
-      <span class="badge badge-mag">✦ Instagram Mode</span>
-      <span class="badge badge-green">💬 DM Mode</span>
-      <span class="badge badge-amb">🏪 Business Mode</span>
-    </div>
-  </header>
+<div id="toast">✓ Copied to clipboard!</div>
 
-  <div class="main-grid">
-    <!-- Left: Image input -->
-    <div class="panel">
-      <div class="panel-title">// Vision Input</div>
-      <div class="upload-zone" id="drop-zone">
-        <input type="file" id="img-input" accept="image/*"/>
-        <div class="upload-icon">⬡</div>
-        <div class="upload-text">Drop image or <span>click to upload</span></div>
-        <div class="upload-text" style="margin-top:4px;font-size:0.7rem;">JPG · PNG · WEBP</div>
-      </div>
-      <div id="preview-wrap">
-        <img id="preview-img" src="" alt="preview"/>
-        <div class="remove-img" onclick="removeImage()">[ REMOVE IMAGE ]</div>
-      </div>
-    </div>
-
-    <!-- Right: Text + mode -->
-    <div class="panel">
-      <div class="panel-title">// Context Input</div>
-      <textarea id="context-text" placeholder="Add context... e.g. 'Just completed AWS certification' or 'Manu bhai happy birthday roast' or leave blank for auto-detection."></textarea>
-
-      <div class="panel-title" style="margin-top:1.1rem;">// Override Mode (optional)</div>
-      <div class="mode-grid">
-        <div class="mode-btn" data-mode="auto" onclick="setMode('auto')">
-          <span class="mode-icon">⚙</span>AUTO-DETECT
-        </div>
-        <div class="mode-btn" data-mode="linkedin" onclick="setMode('linkedin')">
-          <span class="mode-icon">💼</span>LINKEDIN
-        </div>
-        <div class="mode-btn" data-mode="instagram" onclick="setMode('instagram')">
-          <span class="mode-icon">✦</span>INSTAGRAM
-        </div>
-        <div class="mode-btn" data-mode="dm" onclick="setMode('dm')">
-          <span class="mode-icon">💬</span>DM / WHATSAPP
-        </div>
-      </div>
-      <div class="mode-grid" style="margin-top:8px;grid-template-columns:1fr;">
-        <div class="mode-btn" data-mode="business" onclick="setMode('business')">
-          <span class="mode-icon">🏪</span>BUSINESS · SHAH PRATAPMAL
-        </div>
-      </div>
-
-      <button class="generate-btn" id="gen-btn" onclick="generate()">
-        <span id="btn-text">⟡ GENERATE CONTENT</span>
-      </button>
-    </div>
-
-    <!-- Output spans full width -->
-    <div class="panel output-panel">
-      <div class="panel-title">// Generated Output</div>
-      <div id="mode-chip"></div>
-      <div id="output-area">
-        <div class="output-placeholder">[ AWAITING SIGNAL — UPLOAD IMAGE OR ENTER CONTEXT ]</div>
-      </div>
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>Gemini API Key</h2>
+    <p>Enter your Gemini API key. It is saved only in your browser — never sent anywhere else. Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a>.</p>
+    <input type="password" id="api-input" placeholder="AIza..."/>
+    <div class="modal-btns">
+      <button class="modal-save" onclick="saveKey()">Save Key</button>
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
     </div>
   </div>
 </div>
 
+<div class="topbar">
+  <div class="logo">Caption<span>AI</span></div>
+  <div class="api-pill" onclick="openModal()">
+    <div class="api-dot" id="api-dot"></div>
+    <span id="api-status">Set API Key</span>
+  </div>
+</div>
+
+<div class="page">
+  <div class="hero">
+    <h1>One photo,<br/><em>five captions.</em></h1>
+    <p>Upload a photo or describe your moment — get ready-to-post captions for Instagram, LinkedIn, Twitter, WhatsApp &amp; Facebook.</p>
+  </div>
+
+  <div class="platforms">
+    <div class="plat-pill ig"><div class="dot"></div>Instagram</div>
+    <div class="plat-pill li"><div class="dot"></div>LinkedIn</div>
+    <div class="plat-pill tw"><div class="dot"></div>Twitter / X</div>
+    <div class="plat-pill wa"><div class="dot"></div>WhatsApp</div>
+    <div class="plat-pill fb"><div class="dot"></div>Facebook</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span>🖼️</span>
+      <span class="card-header-title">Upload a photo (optional)</span>
+    </div>
+    <div class="card-body">
+      <div class="upload-zone" id="drop-zone">
+        <input type="file" id="img-input" accept="image/*"/>
+        <div class="upload-icon-wrap">📷</div>
+        <div class="upload-main">Click to upload or drag &amp; drop</div>
+        <div class="upload-sub">JPG, PNG, WEBP supported</div>
+      </div>
+      <div id="preview-wrap">
+        <img id="preview-img" src="" alt="Preview"/>
+        <div class="remove-btn" onclick="removeImage()">✕ Remove photo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span>✍️</span>
+      <span class="card-header-title">Add context (optional)</span>
+    </div>
+    <div class="card-body">
+      <textarea id="context-text" placeholder="E.g. 'Sunset at Goa beach, felt amazing' or 'Just got promoted at work!' or 'Friend's birthday dinner'..."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span>🎭</span>
+      <span class="card-header-title">Choose a tone</span>
+    </div>
+    <div class="card-body">
+      <div class="tone-grid">
+        <div class="tone-btn active" data-tone="auto" onclick="setTone('auto')"><span class="tone-emoji">✨</span>Auto</div>
+        <div class="tone-btn" data-tone="fun" onclick="setTone('fun')"><span class="tone-emoji">😄</span>Fun</div>
+        <div class="tone-btn" data-tone="professional" onclick="setTone('professional')"><span class="tone-emoji">💼</span>Professional</div>
+        <div class="tone-btn" data-tone="minimal" onclick="setTone('minimal')"><span class="tone-emoji">🤍</span>Minimal</div>
+        <div class="tone-btn" data-tone="emotional" onclick="setTone('emotional')"><span class="tone-emoji">💭</span>Emotional</div>
+        <div class="tone-btn" data-tone="witty" onclick="setTone('witty')"><span class="tone-emoji">🔥</span>Witty</div>
+      </div>
+      <div class="tip">💡 <strong>Auto</strong> — AI will detect the best tone from your photo and context automatically.</div>
+      <button class="gen-btn" id="gen-btn" onclick="generate()">✦ Generate Captions</button>
+    </div>
+  </div>
+
+  <div id="output-section">
+    <div class="output-title">Your captions ✦</div>
+    <div id="output-cards"></div>
+  </div>
+</div>
+
 <script>
-let imageBase64 = null;
-let imageMime = null;
-let selectedMode = 'auto';
+let imageBase64 = null, imageMime = null, selectedTone = 'auto';
+let apiKey = localStorage.getItem('gemini_key') || '';
+updateApiStatus();
 
-// Mode selector
-function setMode(m) {
-  selectedMode = m;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`[data-mode="${m}"]`).classList.add('active');
+function openModal() { document.getElementById('api-input').value = apiKey; document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function saveKey() {
+  const k = document.getElementById('api-input').value.trim();
+  if (k) { apiKey = k; localStorage.setItem('gemini_key', k); }
+  updateApiStatus(); closeModal();
 }
-setMode('auto');
+function updateApiStatus() {
+  document.getElementById('api-dot').classList.toggle('connected', !!apiKey);
+  document.getElementById('api-status').textContent = apiKey ? 'API Connected' : 'Set API Key';
+}
 
-// Image handling
+function setTone(t) {
+  selectedTone = t;
+  document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-tone="' + t + '"]').classList.add('active');
+}
+
 const dropZone = document.getElementById('drop-zone');
-const imgInput = document.getElementById('img-input');
-
-imgInput.addEventListener('change', e => {
-  if (e.target.files[0]) handleFile(e.target.files[0]);
-});
+document.getElementById('img-input').addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('dragover');
-  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
-});
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
 function handleFile(file) {
   if (!file.type.startsWith('image/')) return;
   const reader = new FileReader();
   reader.onload = ev => {
     const result = ev.target.result;
-    const comma = result.indexOf(',');
-    imageBase64 = result.slice(comma + 1);
+    imageBase64 = result.split(',')[1];
     imageMime = file.type;
     document.getElementById('preview-img').src = result;
     document.getElementById('preview-wrap').style.display = 'block';
   };
   reader.readAsDataURL(file);
 }
-
 function removeImage() {
   imageBase64 = null; imageMime = null;
   document.getElementById('preview-wrap').style.display = 'none';
-  document.getElementById('preview-img').src = '';
-  imgInput.value = '';
+  document.getElementById('img-input').value = '';
 }
 
-// Build system prompt based on mode
-function buildPrompt(mode, context) {
-  const modeInstructions = {
-    linkedin: `You are in LINKEDIN MODE. The user has shared a professional context.
-Generate a high-authority LinkedIn post with:
-- A bold, attention-grabbing hook (first line must make people stop scrolling)
-- 3 bullet points under "Key Learnings:" heading
-- A professional call-to-action at the end
-- 5 industry-specific hashtags
-Format: structured, inspiring, professional tone.`,
+const PLATFORMS = [
+  { id: 'ig', name: 'Instagram',   emoji: '📸', cls: 'badge-ig' },
+  { id: 'li', name: 'LinkedIn',    emoji: '💼', cls: 'badge-li' },
+  { id: 'tw', name: 'Twitter / X', emoji: '🐦', cls: 'badge-tw' },
+  { id: 'wa', name: 'WhatsApp',    emoji: '💬', cls: 'badge-wa' },
+  { id: 'fb', name: 'Facebook',    emoji: '👥', cls: 'badge-fb' },
+];
 
-    instagram: `You are in INSTAGRAM/THREADS MODE. Analyze the vibe and generate 3 distinct caption options:
-**Option A — The Storyteller:** A longer, engaging caption with narrative flow (3-5 sentences).
-**Option B — The Minimalist:** One punchy line + exactly 2 relevant emojis. Nothing more.
-**Option C — The Witty/Savage:** Humorous, sharp-witted, or playfully bold. Make it memorable.
-Separate each option clearly. Add 5-8 relevant hashtags after Option C only.`,
-
-    dm: `You are in DM/WHATSAPP MODE. Write a warm, human personal message. 
-- Detect tone from context (birthday, anniversary, celebration, etc.)
-- If "roast" is mentioned anywhere: be sarcastically funny and playfully savage
-- Otherwise: be warm, genuine, personal — NOT robotic or generic
-- Use natural language, casual punctuation if appropriate
-- Keep it concise (2-5 sentences max)
-Do NOT sound like AI. Sound like a real friend.`,
-
-    business: `You are in BUSINESS MODE for "Shah Pratapmal Champalal" textile shop established 1958.
-Generate a marketing post suitable for WhatsApp Status or Facebook Business:
-- Lead with heritage and legacy (since 1958)
-- Emphasize quality, trust, craftsmanship
-- Warm, trustworthy tone — not salesy
-- Include a subtle CTA (visit us, DM for catalog, etc.)
-- Keep it under 120 words
-- End with 3-4 relevant hashtags`,
-
-    auto: `You are a Universal AI Content Engine. Analyze the image and/or text to AUTOMATICALLY detect the best mode:
-
-DETECTION RULES:
-1. LINKEDIN MODE → if image shows: certificates, office settings, formal attire, awards; OR text contains: "achieved", "learned", "completed", "certified", "promoted"
-2. INSTAGRAM MODE → if image shows: lifestyle, travel, food, fashion, aesthetic settings, casual vibes; OR text has casual/slang language
-3. DM MODE → if text mentions: names like Manu, Bhai, Tanu, Siddhi, Dost, Yaar; OR occasions like birthday, anniversary, wedding
-4. BUSINESS MODE → if image shows: textiles, shop, fabric, inventory; OR text mentions: Shah Pratapmal, shop, textile, business
-
-STATE WHICH MODE YOU DETECTED at the very top like: [DETECTED MODE: LINKEDIN]
-
-Then generate the appropriate content for that mode following these format rules:
-- LINKEDIN: Bold hook + 3 Key Learnings bullets + CTA + 5 hashtags
-- INSTAGRAM: 3 options (Storyteller / Minimalist / Witty)  
-- DM: Natural human message, roast if requested
-- BUSINESS: Heritage-led WhatsApp/Facebook post`
+function buildPrompt() {
+  const tones = {
+    auto: 'Automatically detect the best tone from the image and/or context provided.',
+    fun: 'Fun, playful, lighthearted — casual language, humor welcome.',
+    professional: 'Professional, polished, authoritative and insightful.',
+    minimal: 'Minimal and poetic — clean, less is more.',
+    emotional: 'Warm, heartfelt, emotionally resonant.',
+    witty: 'Witty, clever, sharp — memorable lines.'
   };
+  return `You are an expert social media copywriter. Tone instruction: ${tones[selectedTone]}
 
-  const safety = `\n\nSAFETY RULES:
-- If the image appears to contain NSFW, explicit, violent, or inappropriate content, respond ONLY with: "SYSTEM ERROR: Inappropriate content detected. Unable to process."
-- Do not hallucinate or invent details not present in the image or context.
-- Be accurate and grounded in what you can actually see/read.`;
+Generate captions for exactly 5 platforms following these rules:
+- Instagram: Engaging, emojis welcome, 5-10 relevant hashtags, max 2200 chars
+- LinkedIn: Professional, bold opening hook, 3-5 industry hashtags, max 3000 chars
+- Twitter/X: Punchy and concise, STRICTLY under 280 characters total including hashtags, 1-2 hashtags max
+- WhatsApp: Conversational and warm, suitable for Status update, no hashtags needed, max 500 chars
+- Facebook: Friendly and story-like, 2-3 hashtags, max 500 chars
 
-  return modeInstructions[mode] + safety;
+Return ONLY valid JSON with no markdown fences, no explanation, no extra text — just the raw JSON object:
+{"ig":"...","li":"...","tw":"...","wa":"...","fb":"..."}
+
+If the image contains inappropriate or NSFW content, return exactly:
+{"error":"Inappropriate content detected. Please use a suitable image."}`;
 }
 
-// Chip colors per mode
-function chipStyle(mode) {
-  const map = {
-    'LINKEDIN': { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', border: 'rgba(0,245,255,0.4)' },
-    'INSTAGRAM': { bg: 'rgba(255,0,255,0.1)', color: '#ff00ff', border: 'rgba(255,0,255,0.4)' },
-    'DM': { bg: 'rgba(0,255,136,0.1)', color: '#00ff88', border: 'rgba(0,255,136,0.4)' },
-    'BUSINESS': { bg: 'rgba(255,184,0,0.1)', color: '#ffb800', border: 'rgba(255,184,0,0.4)' },
-  };
-  return map[mode] || map['LINKEDIN'];
-}
-
-// Main generate
 async function generate() {
   const context = document.getElementById('context-text').value.trim();
-  if (!imageBase64 && !context) {
-    showError('Please upload an image or enter context text before generating.');
-    return;
-  }
+  if (!imageBase64 && !context) { showError('Please upload a photo or add some context first.'); return; }
+  if (!apiKey) { openModal(); return; }
 
   const btn = document.getElementById('gen-btn');
-  const btnText = document.getElementById('btn-text');
-  btn.disabled = true;
-  btnText.textContent = '⟳ PROCESSING...';
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
 
-  const outputArea = document.getElementById('output-area');
-  const modeChip = document.getElementById('mode-chip');
-  modeChip.style.display = 'none';
-  outputArea.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  const out = document.getElementById('output-section');
+  const cards = document.getElementById('output-cards');
+  out.style.display = 'block';
+  cards.innerHTML = PLATFORMS.map(() =>
+    '<div class="plat-card" style="padding:1.1rem"><div class="skeleton w-half" style="margin-bottom:14px;height:16px"></div><div class="skeleton w-full"></div><div class="skeleton w-3q"></div><div class="skeleton w-full"></div></div>'
+  ).join('');
+  out.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   try {
-    const messages = [];
-    const userContent = [];
+    const parts = [];
+    if (imageBase64) parts.push({ inlineData: { mimeType: imageMime, data: imageBase64 } });
+    const userText = (context ? 'User context: "' + context + '"\n\n' : '') + buildPrompt();
+    parts.push({ text: userText });
 
-    if (imageBase64) {
-      userContent.push({
-        type: 'image',
-        source: { type: 'base64', media_type: imageMime, data: imageBase64 }
-      });
-    }
-
-    const textPrompt = context
-      ? `Context provided by user: "${context}"\n\nAnalyze the above${imageBase64 ? ' image and ' : ' '}context and generate the appropriate content.`
-      : 'Analyze the image and generate the appropriate content based on what you see.';
-
-    userContent.push({ type: 'text', text: textPrompt });
-    messages.push({ role: 'user', content: userContent });
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: buildPrompt(selectedMode, context),
-        messages
-      })
-    });
-
+    const res = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + apiKey,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts }] }) }
+    );
     const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || 'API error ' + res.status);
 
-    if (!res.ok) throw new Error(data.error?.message || 'API error');
+    const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+    if (parsed.error) { showError(parsed.error); return; }
 
-    const raw = (data.content || []).map(b => b.type === 'text' ? b.text : '').join('\n').trim();
-
-    // Check for safety trigger
-    if (raw.toUpperCase().includes('SYSTEM ERROR') && raw.toUpperCase().includes('INAPPROPRIATE')) {
-      outputArea.innerHTML = `<div class="error-block">⚠ SYSTEM ERROR: Inappropriate content detected. Content generation aborted.</div>`;
-      return;
-    }
-
-    // Parse detected mode from auto
-    let detectedMode = null;
-    let displayText = raw;
-    if (selectedMode === 'auto') {
-      const match = raw.match(/\[DETECTED MODE:\s*([A-Z]+)\]/i);
-      if (match) {
-        detectedMode = match[1].toUpperCase();
-        displayText = raw.replace(/\[DETECTED MODE:[^\]]+\]/i, '').trim();
-      }
-    } else {
-      const modeMap = { linkedin:'LINKEDIN', instagram:'INSTAGRAM', dm:'DM', business:'BUSINESS' };
-      detectedMode = modeMap[selectedMode];
-    }
-
-    if (detectedMode) {
-      const s = chipStyle(detectedMode);
-      modeChip.style.cssText = `display:block; background:${s.bg}; color:${s.color}; border:0.5px solid ${s.border}; font-family:'Orbitron',monospace; font-size:0.6rem; letter-spacing:0.15em; padding:4px 12px; border-radius:2px; margin-bottom:1rem; width:fit-content;`;
-      modeChip.textContent = `MODE: ${detectedMode}`;
-    }
-
-    outputArea.innerHTML = '';
-
-    // For Instagram mode, split into 3 blocks
-    const isInsta = detectedMode === 'INSTAGRAM' || selectedMode === 'instagram';
-    if (isInsta) {
-      const parts = splitInstagramOptions(displayText);
-      if (parts.length === 3) {
-        parts.forEach((part, i) => {
-          const labels = ['OPTION A — THE STORYTELLER', 'OPTION B — THE MINIMALIST', 'OPTION C — THE WITTY/SAVAGE'];
-          renderBlock(outputArea, labels[i], part);
-        });
-      } else {
-        renderBlock(outputArea, 'GENERATED CONTENT', displayText);
-      }
-    } else {
-      renderBlock(outputArea, 'GENERATED CONTENT', displayText);
-    }
-
-  } catch (err) {
-    outputArea.innerHTML = `<div class="error-block">⚠ Engine Error: ${err.message}</div>`;
+    cards.innerHTML = '';
+    PLATFORMS.forEach((p, i) => {
+      const caption = parsed[p.id] || '';
+      const div = document.createElement('div');
+      div.className = 'plat-card';
+      div.style.animationDelay = (i * 0.07) + 's';
+      div.innerHTML =
+        '<div class="plat-card-header">' +
+          '<div class="plat-name"><span>' + p.emoji + '</span><span class="plat-badge ' + p.cls + '">' + p.name + '</span></div>' +
+          '<button class="copy-btn" onclick="copyText(this,`' + esc(caption) + '`)">Copy</button>' +
+        '</div>' +
+        '<div class="plat-card-body">' +
+          '<div class="caption-text">' + escHtml(caption) + '</div>' +
+          '<div class="char-count">' + caption.length + ' characters</div>' +
+        '</div>';
+      cards.appendChild(div);
+    });
+  } catch(e) {
+    showError('Error: ' + e.message);
   } finally {
-    btn.disabled = false;
-    btnText.textContent = '⟡ GENERATE CONTENT';
+    btn.disabled = false; btn.textContent = '✦ Generate Captions';
   }
-}
-
-function splitInstagramOptions(text) {
-  const sep = text.split(/\*\*Option [ABC][^*]*\*\*|Option [ABC][^\n]*\n/i);
-  if (sep.length >= 4) return [sep[1].trim(), sep[2].trim(), sep[3].trim()];
-  // fallback: split by double newlines
-  const parts = text.split(/\n{2,}/).filter(p => p.trim().length > 0);
-  if (parts.length >= 3) return parts.slice(0, 3);
-  return [text];
-}
-
-function renderBlock(container, label, text) {
-  const div = document.createElement('div');
-  div.className = 'output-block';
-  const cleanText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  div.innerHTML = `
-    <div class="output-block-label">// ${label}</div>
-    <div class="output-text">${cleanText}</div>
-    <button class="copy-btn" onclick="copyText(this, \`${escapeBacktick(text)}\`)">COPY</button>
-  `;
-  container.appendChild(div);
-}
-
-function escapeBacktick(str) {
-  return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
-}
-
-function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'COPIED!';
-    btn.classList.add('copied');
-    showToast();
-    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
-  });
-}
-
-function showToast() {
-  const t = document.getElementById('toast');
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 function showError(msg) {
-  document.getElementById('output-area').innerHTML = `<div class="error-block">⚠ ${msg}</div>`;
+  document.getElementById('output-section').style.display = 'block';
+  document.getElementById('output-cards').innerHTML = '<div class="error-card">⚠️ ' + msg + '</div>';
 }
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    const t = document.getElementById('toast'); t.classList.add('show');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); t.classList.remove('show'); }, 2000);
+  });
+}
+function esc(s) { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
