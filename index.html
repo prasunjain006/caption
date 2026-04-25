@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link-Lift Vision AI | Professional Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #05070a; color: #f1f5f9; }
+        .glass-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .shimmer { background: linear-gradient(90deg, #1e293b 0%, #334155 50%, #1e293b 100%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .output-box::-webkit-scrollbar { width: 5px; }
+        .output-box::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-8">
+
+    <div class="max-w-6xl w-full grid lg:grid-cols-2 gap-8 items-start">
+        
+        <div class="glass-card p-8 rounded-[2.5rem] shadow-2xl space-y-8">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-lg"><i class="fab fa-linkedin-in text-white"></i></div>
+                <h1 class="text-2xl font-800 tracking-tight">Link-Lift <span class="text-blue-500">Vision</span></h1>
+            </div>
+
+            <div class="relative group">
+                <input type="file" id="imageSelector" class="hidden" accept="image/*">
+                <div id="dropZone" onclick="document.getElementById('imageSelector').click()" 
+                     class="h-64 border-2 border-dashed border-slate-700 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-all hover:border-blue-500 hover:bg-blue-500/5 overflow-hidden">
+                    
+                    <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-3xl">
+                    
+                    <div id="uploadPrompt" class="text-center p-6">
+                        <i class="fas fa-images text-4xl text-slate-600 group-hover:text-blue-500 mb-4 transition-colors"></i>
+                        <p class="text-sm font-semibold text-slate-400">Click or drag photo here</p>
+                        <p class="text-[10px] text-slate-600 mt-2 uppercase tracking-widest font-bold">LinkedIn Image Ref</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <label class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Post Context (Optional)</label>
+                <textarea id="contextInput" rows="3" class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl p-4 text-sm focus:border-blue-500 outline-none transition resize-none" placeholder="Add details (e.g. Workshop at Parul University, new certification, or family business update)"></textarea>
+            </div>
+
+            <button id="generateBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-2xl font-bold text-white shadow-xl shadow-blue-900/20 flex items-center justify-center space-x-3 transition-all active:scale-[0.98]">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <span>CRAFT LINKEDIN POST</span>
+            </button>
+        </div>
+
+        <div class="glass-card p-8 rounded-[2.5rem] flex flex-col h-full border-blue-500/20 shadow-blue-900/10">
+            <div class="flex justify-between items-center mb-8">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-blue-400 border border-blue-400/30 px-3 py-1 rounded-full">AI Output Engine</span>
+                <div class="flex space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-yellow-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                </div>
+            </div>
+
+            <div id="statusIndicator" class="hidden mb-4">
+                <div class="shimmer h-4 w-3/4 rounded-md mb-2"></div>
+                <div class="shimmer h-4 w-1/2 rounded-md"></div>
+            </div>
+
+            <div id="finalOutput" class="output-box flex-grow text-slate-300 text-sm leading-relaxed whitespace-pre-line overflow-y-auto max-h-[400px] pr-2 scroll-custom">
+                Your AI-engineered caption will appear here once you upload a photo or provide context.
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-800 flex justify-between items-center">
+                <p class="text-[10px] text-slate-500 font-bold">MODEL: GEMINI-1.5-FLASH</p>
+                <button onclick="copyToClipboard()" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center space-x-2">
+                    <i class="far fa-copy"></i>
+                    <span>COPY DRAFT</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+        // [cite: 17] Tech Stack: Using Gemini-1.5-Flash for Vision tasks
+        const API_KEY = "AIzaSyAI4jWds7kAREHPPS_4KAa1RxFvHwHk4OI"; 
+        const genAI = new GoogleGenerativeAI(API_KEY);
+
+        const imgSelector = document.getElementById('imageSelector');
+        const imgPreview = document.getElementById('imagePreview');
+        const uploadUI = document.getElementById('uploadPrompt');
+        const generateBtn = document.getElementById('generateBtn');
+        const outputBox = document.getElementById('finalOutput');
+        const statusInd = document.getElementById('statusIndicator');
+
+        // Preview Image logic
+        imgSelector.onchange = e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    imgPreview.src = reader.result;
+                    imgPreview.classList.remove('hidden');
+                    uploadUI.classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // Convert file to base64 for Gemini
+        async function fileToPart(file) {
+            const base64 = await new Promise((res) => {
+                const reader = new FileReader();
+                reader.onloadend = () => res(reader.result.split(',')[1]);
+                reader.readAsDataURL(file);
+            });
+            return { inlineData: { data: base64, mimeType: file.type } };
+        }
+
+        generateBtn.onclick = async () => {
+            const file = imgSelector.files[0];
+            const context = document.getElementById('contextInput').value;
+
+            if(!file && !context) {
+                alert("Bhai, kam se kam photo ya text toh do!");
+                return;
+            }
+
+            // UI State Change
+            outputBox.classList.add('hidden');
+            statusInd.classList.remove('hidden');
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>ENGINEERING POST...</span>`;
+
+            try {
+                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+                
+                // Prompt engineering for LinkedIn
+                let prompt = "Act as a professional LinkedIn content strategist. Create a high-engagement post. If there is an image, analyze it. If there is text context, use it. Post should include: 1. Catchy hook 2. Value-driven body 3. Call to action 4. 3-5 relevant hashtags.";
+                if(context) prompt += `\n\nContext provided: ${context}`;
+
+                const payload = [prompt];
+                if (file) payload.push(await fileToPart(file));
+
+                const result = await model.generateContent(payload);
+                const response = await result.response;
+                
+                outputBox.innerText = response.text();
+                outputBox.classList.remove('hidden');
+            } catch (error) {
+                outputBox.innerText = "Error: Check your API key or internet connection. \n\nDetails: " + error.message;
+                outputBox.classList.remove('hidden');
+            } finally {
+                statusInd.classList.add('hidden');
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = `<i class="fas fa-wand-magic-sparkles"></i> <span>CRAFT LINKEDIN POST</span>`;
+            }
+        };
+
+        window.copyToClipboard = () => {
+            const text = outputBox.innerText;
+            navigator.clipboard.writeText(text);
+            alert("Draft copied to clipboard!");
+        };
+    </script>
+</body>
+</html>
