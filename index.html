@@ -1,117 +1,662 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Ultimate AI Engine | v2.0 Fixed</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .btn-magic { background: linear-gradient(90deg, #2563eb, #7c3aed); transition: 0.3s; }
-        .btn-magic:hover { box-shadow: 0 0 20px rgba(124, 58, 237, 0.4); transform: translateY(-2px); }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Universal AI Content Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --cyan: #00f5ff;
+    --magenta: #ff00ff;
+    --green: #00ff88;
+    --amber: #ffb800;
+    --bg: #050810;
+    --surface: rgba(255,255,255,0.03);
+    --surface2: rgba(255,255,255,0.06);
+    --border: rgba(0,245,255,0.15);
+    --border2: rgba(0,245,255,0.35);
+    --text: #c8d8e8;
+    --text-dim: #5a7080;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 15px;
+  }
+
+  /* Grid bg */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,245,255,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 1; }
+
+  /* Header */
+  header { padding: 2.5rem 0 2rem; text-align: center; }
+  .logo-text {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    background: linear-gradient(90deg, var(--cyan), var(--magenta), var(--cyan));
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+  }
+  @keyframes shimmer { 0%{background-position:0%} 100%{background-position:200%} }
+  .logo-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--cyan);
+    letter-spacing: 0.25em;
+    opacity: 0.6;
+    margin-top: 6px;
+  }
+  .mode-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 1.2rem; }
+  .badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    padding: 4px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+    border: 0.5px solid;
+  }
+  .badge-cyan  { border-color: var(--cyan); color: var(--cyan); background: rgba(0,245,255,0.06); }
+  .badge-mag   { border-color: var(--magenta); color: var(--magenta); background: rgba(255,0,255,0.06); }
+  .badge-green { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.06); }
+  .badge-amb   { border-color: var(--amber); color: var(--amber); background: rgba(255,184,0,0.06); }
+
+  /* Main grid */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  @media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
+
+  /* Glass panel */
+  .panel {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+  .panel::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0.4;
+  }
+  .panel:hover { border-color: var(--border2); }
+  .panel-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--cyan);
+    opacity: 0.7;
+    margin-bottom: 0.9rem;
+    text-transform: uppercase;
+  }
+
+  /* Upload zone */
+  .upload-zone {
+    border: 1px dashed rgba(0,245,255,0.25);
+    border-radius: 4px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: transparent;
+    position: relative;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--cyan);
+    background: rgba(0,245,255,0.04);
+  }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+  .upload-text { font-size: 0.8rem; color: var(--text-dim); }
+  .upload-text span { color: var(--cyan); }
+  #preview-wrap { margin-top: 1rem; display: none; }
+  #preview-wrap img { max-width: 100%; max-height: 200px; border-radius: 4px; border: 0.5px solid var(--border); object-fit: contain; display: block; margin: 0 auto; }
+  .remove-img {
+    margin-top: 6px; font-size: 0.72rem; color: var(--magenta);
+    cursor: pointer; text-align: center; font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.08em; opacity: 0.7;
+  }
+  .remove-img:hover { opacity: 1; }
+
+  /* Textarea */
+  textarea {
+    width: 100%; background: rgba(0,0,0,0.3); border: 0.5px solid var(--border);
+    border-radius: 4px; color: var(--text); font-family: 'Inter', sans-serif;
+    font-size: 0.88rem; padding: 0.75rem; resize: vertical; min-height: 110px;
+    outline: none; transition: border-color 0.2s; line-height: 1.6;
+  }
+  textarea:focus { border-color: rgba(0,245,255,0.5); }
+  textarea::placeholder { color: var(--text-dim); }
+
+  /* Mode selector */
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 0.75rem; }
+  .mode-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    padding: 8px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 0.5px solid rgba(255,255,255,0.1);
+    background: var(--surface2);
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    line-height: 1.4;
+  }
+  .mode-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+  .mode-btn.active { border-color: var(--cyan); color: var(--cyan); background: rgba(0,245,255,0.08); }
+  .mode-btn .mode-icon { font-size: 1rem; display: block; margin-bottom: 3px; }
+
+  /* Generate button */
+  .generate-btn {
+    width: 100%; margin-top: 1.1rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.78rem; font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 0.9rem;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid var(--cyan);
+    background: linear-gradient(135deg, rgba(0,245,255,0.12), rgba(255,0,255,0.08));
+    color: var(--cyan);
+    transition: all 0.2s;
+    position: relative; overflow: hidden;
+    text-transform: uppercase;
+  }
+  .generate-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,245,255,0.2), rgba(255,0,255,0.15));
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .generate-btn:hover::before { opacity: 1; }
+  .generate-btn:hover { box-shadow: 0 0 20px rgba(0,245,255,0.25), 0 0 40px rgba(255,0,255,0.1); }
+  .generate-btn:active { transform: scale(0.99); }
+  .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .generate-btn span { position: relative; z-index: 1; }
+
+  /* Output panel */
+  .output-panel { grid-column: 1 / -1; }
+  @media (max-width: 700px) { .output-panel { grid-column: 1; } }
+
+  #output-area { min-height: 140px; }
+  .output-placeholder {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    padding: 2rem 0;
+    text-align: center;
+    opacity: 0.5;
+  }
+
+  /* Detected mode chip */
+  #mode-chip {
+    display: none;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 1rem;
+    width: fit-content;
+  }
+
+  /* Typing animation */
+  .typing-dots { display: flex; gap: 5px; padding: 1rem 0; align-items: center; }
+  .typing-dots span {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--cyan); opacity: 0.3;
+    animation: blink 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+
+  /* Output content */
+  .output-block {
+    background: rgba(0,0,0,0.2);
+    border: 0.5px solid var(--border);
+    border-radius: 4px;
+    padding: 1.1rem;
+    margin-bottom: 0.8rem;
+    position: relative;
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  .output-block-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--magenta);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.6rem;
+    opacity: 0.8;
+  }
+  .output-text {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: #d0e0ec;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .output-text strong { color: var(--cyan); font-weight: 500; }
+  .copy-btn {
+    position: absolute; top: 10px; right: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem; letter-spacing: 0.1em;
+    padding: 4px 10px; border-radius: 2px;
+    border: 0.5px solid rgba(0,245,255,0.3);
+    background: transparent; color: var(--cyan);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .copy-btn:hover { background: rgba(0,245,255,0.1); border-color: var(--cyan); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem; letter-spacing: 0.1em;
+    padding: 10px 18px; border-radius: 3px;
+    background: rgba(0,255,136,0.12);
+    border: 0.5px solid var(--green); color: var(--green);
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.25s; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: none; }
+
+  /* Error */
+  .error-block {
+    background: rgba(255,0,80,0.06);
+    border: 0.5px solid rgba(255,0,80,0.3);
+    border-radius: 4px; padding: 1rem;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem; color: #ff4060;
+    letter-spacing: 0.05em; animation: fadeIn 0.3s ease;
+  }
+
+  /* Scanline flicker on logo */
+  .scanline {
+    position: fixed; top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0.15; animation: scan 8s linear infinite; pointer-events: none; z-index: 999;
+  }
+  @keyframes scan { 0%{top:0} 100%{top:100vh} }
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body>
+<div class="scanline"></div>
+<div id="toast">✓ Copied to clipboard</div>
 
-    <div class="max-w-5xl w-full glass p-10 rounded-[2.5rem] shadow-2xl grid md:grid-cols-2 gap-10">
-        
-        <div class="space-y-6">
-            <h1 class="text-2xl font-black italic tracking-tighter text-blue-400">ULTIMATE ENGINE</h1>
-            
-            <div class="h-56 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-blue-500/5 transition relative overflow-hidden" onclick="document.getElementById('fileInp').click()">
-                <input type="file" id="fileInp" class="hidden" accept="image/*">
-                <img id="prev" class="hidden absolute inset-0 w-full h-full object-cover rounded-3xl opacity-50">
-                <div id="upTxt" class="text-center z-10">
-                    <i class="fas fa-camera text-3xl mb-2 text-slate-600"></i>
-                    <p class="text-[10px] font-bold text-slate-500 tracking-widest">DROP PHOTO (OPTIONAL)</p>
-                </div>
-            </div>
+<div class="container">
+  <header>
+    <div class="logo-text">UNIVERSAL AI CONTENT ENGINE</div>
+    <div class="logo-sub">ZERO-INPUT ORCHESTRATOR · VISION + CONTEXT</div>
+    <div class="mode-badges">
+      <span class="badge badge-cyan">⚡ LinkedIn Mode</span>
+      <span class="badge badge-mag">✦ Instagram Mode</span>
+      <span class="badge badge-green">💬 DM Mode</span>
+      <span class="badge badge-amb">🏪 Business Mode</span>
+    </div>
+  </header>
 
-            <textarea id="userInput" rows="5" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-sm focus:border-blue-500 outline-none" placeholder="Kya chahiye? (Bday wish, Insta caption, LinkedIn post, ya sirf gyan...)"></textarea>
-
-            <button id="mainBtn" class="btn-magic w-full py-4 rounded-xl font-bold text-sm tracking-widest uppercase shadow-lg">
-                Generate Magic <i class="fas fa-bolt ml-2"></i>
-            </button>
-        </div>
-
-        <div class="flex flex-col h-full bg-black/40 rounded-3xl p-6 border border-slate-800">
-            <p class="text-[10px] font-bold text-slate-500 mb-4 tracking-widest uppercase">AI Architect Response</p>
-            <div id="finalOut" class="flex-grow text-sm leading-relaxed whitespace-pre-line overflow-y-auto max-h-[400px] text-slate-300">
-                Waiting for your command...
-            </div>
-            <button onclick="copyIt()" class="mt-4 text-[10px] font-bold text-blue-400 hover:text-white uppercase flex items-center">
-                <i class="far fa-copy mr-2"></i> Copy Results
-            </button>
-        </div>
+  <div class="main-grid">
+    <!-- Left: Image input -->
+    <div class="panel">
+      <div class="panel-title">// Vision Input</div>
+      <div class="upload-zone" id="drop-zone">
+        <input type="file" id="img-input" accept="image/*"/>
+        <div class="upload-icon">⬡</div>
+        <div class="upload-text">Drop image or <span>click to upload</span></div>
+        <div class="upload-text" style="margin-top:4px;font-size:0.7rem;">JPG · PNG · WEBP</div>
+      </div>
+      <div id="preview-wrap">
+        <img id="preview-img" src="" alt="preview"/>
+        <div class="remove-img" onclick="removeImage()">[ REMOVE IMAGE ]</div>
+      </div>
     </div>
 
-    <script type="module">
-        import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+    <!-- Right: Text + mode -->
+    <div class="panel">
+      <div class="panel-title">// Context Input</div>
+      <textarea id="context-text" placeholder="Add context... e.g. 'Just completed AWS certification' or 'Manu bhai happy birthday roast' or leave blank for auto-detection."></textarea>
 
-        // UPDATED API KEY AND MODEL NAME TO FIX 404
-        const API_KEY = "AIzaSyAI4jWds7kAREHPPS_4KAa1RxFvHwHk4OI"; 
-        const genAI = new GoogleGenerativeAI(API_KEY);
+      <div class="panel-title" style="margin-top:1.1rem;">// Override Mode (optional)</div>
+      <div class="mode-grid">
+        <div class="mode-btn" data-mode="auto" onclick="setMode('auto')">
+          <span class="mode-icon">⚙</span>AUTO-DETECT
+        </div>
+        <div class="mode-btn" data-mode="linkedin" onclick="setMode('linkedin')">
+          <span class="mode-icon">💼</span>LINKEDIN
+        </div>
+        <div class="mode-btn" data-mode="instagram" onclick="setMode('instagram')">
+          <span class="mode-icon">✦</span>INSTAGRAM
+        </div>
+        <div class="mode-btn" data-mode="dm" onclick="setMode('dm')">
+          <span class="mode-icon">💬</span>DM / WHATSAPP
+        </div>
+      </div>
+      <div class="mode-grid" style="margin-top:8px;grid-template-columns:1fr;">
+        <div class="mode-btn" data-mode="business" onclick="setMode('business')">
+          <span class="mode-icon">🏪</span>BUSINESS · SHAH PRATAPMAL
+        </div>
+      </div>
 
-        const fInp = document.getElementById('fileInp');
-        const prev = document.getElementById('prev');
-        const upTxt = document.getElementById('upTxt');
-        const mainBtn = document.getElementById('mainBtn');
-        const finalOut = document.getElementById('finalOut');
+      <button class="generate-btn" id="gen-btn" onclick="generate()">
+        <span id="btn-text">⟡ GENERATE CONTENT</span>
+      </button>
+    </div>
 
-        fInp.onchange = () => {
-            const [file] = fInp.files;
-            if (file) {
-                prev.src = URL.createObjectURL(file);
-                prev.classList.remove('hidden');
-                upTxt.classList.add('hidden');
-            }
-        };
+    <!-- Output spans full width -->
+    <div class="panel output-panel">
+      <div class="panel-title">// Generated Output</div>
+      <div id="mode-chip"></div>
+      <div id="output-area">
+        <div class="output-placeholder">[ AWAITING SIGNAL — UPLOAD IMAGE OR ENTER CONTEXT ]</div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        async function toBase64(file) {
-            return new Promise(r => {
-                const rd = new FileReader();
-                rd.onloadend = () => r(rd.result.split(',')[1]);
-                rd.readAsDataURL(file);
-            });
-        }
+<script>
+let imageBase64 = null;
+let imageMime = null;
+let selectedMode = 'auto';
 
-        mainBtn.onclick = async () => {
-            const file = fInp.files[0];
-            const text = document.getElementById('userInput').value;
-            if(!text && !file) return alert("Kuch toh likh bhai!");
+// Mode selector
+function setMode(m) {
+  selectedMode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-mode="${m}"]`).classList.add('active');
+}
+setMode('auto');
 
-            finalOut.innerHTML = "<div class='animate-pulse'>AI is thinking... Hold on...</div>";
-            mainBtn.disabled = true;
+// Image handling
+const dropZone = document.getElementById('drop-zone');
+const imgInput = document.getElementById('img-input');
 
-            try {
-                // FIXED MODEL NAME: gemini-1.5-flash-latest fixes the 404 error
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-                
-                let systemPrompt = `You are an All-Rounder Content Creator. 
-                User Input: "${text}"
-                Based on this, detect if it's for LinkedIn (professional), Instagram (trendy/emojis), a Birthday wish (warm/roast), or General info. 
-                Provide a structured, high-quality response. If there's an image, describe it in the context of the post.`;
+imgInput.addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
 
-                const parts = [systemPrompt];
-                if (file) {
-                    parts.push({ inlineData: { data: await toBase64(file), mimeType: file.type } });
-                }
+function handleFile(file) {
+  if (!file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const result = ev.target.result;
+    const comma = result.indexOf(',');
+    imageBase64 = result.slice(comma + 1);
+    imageMime = file.type;
+    document.getElementById('preview-img').src = result;
+    document.getElementById('preview-wrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
 
-                const result = await model.generateContent(parts);
-                finalOut.innerText = result.response.text();
-            } catch (err) {
-                finalOut.innerText = "Dikaat ye hai: " + err.message + "\n\nTip: Make sure your API key is enabled for 'Generative Language API' in Google AI Studio.";
-                console.error(err);
-            } finally {
-                mainBtn.disabled = false;
-            }
-        };
+function removeImage() {
+  imageBase64 = null; imageMime = null;
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('preview-img').src = '';
+  imgInput.value = '';
+}
 
-        window.copyIt = () => {
-            navigator.clipboard.writeText(finalOut.innerText);
-            alert("Copied!");
-        }
-    </script>
+// Build system prompt based on mode
+function buildPrompt(mode, context) {
+  const modeInstructions = {
+    linkedin: `You are in LINKEDIN MODE. The user has shared a professional context.
+Generate a high-authority LinkedIn post with:
+- A bold, attention-grabbing hook (first line must make people stop scrolling)
+- 3 bullet points under "Key Learnings:" heading
+- A professional call-to-action at the end
+- 5 industry-specific hashtags
+Format: structured, inspiring, professional tone.`,
+
+    instagram: `You are in INSTAGRAM/THREADS MODE. Analyze the vibe and generate 3 distinct caption options:
+**Option A — The Storyteller:** A longer, engaging caption with narrative flow (3-5 sentences).
+**Option B — The Minimalist:** One punchy line + exactly 2 relevant emojis. Nothing more.
+**Option C — The Witty/Savage:** Humorous, sharp-witted, or playfully bold. Make it memorable.
+Separate each option clearly. Add 5-8 relevant hashtags after Option C only.`,
+
+    dm: `You are in DM/WHATSAPP MODE. Write a warm, human personal message. 
+- Detect tone from context (birthday, anniversary, celebration, etc.)
+- If "roast" is mentioned anywhere: be sarcastically funny and playfully savage
+- Otherwise: be warm, genuine, personal — NOT robotic or generic
+- Use natural language, casual punctuation if appropriate
+- Keep it concise (2-5 sentences max)
+Do NOT sound like AI. Sound like a real friend.`,
+
+    business: `You are in BUSINESS MODE for "Shah Pratapmal Champalal" textile shop established 1958.
+Generate a marketing post suitable for WhatsApp Status or Facebook Business:
+- Lead with heritage and legacy (since 1958)
+- Emphasize quality, trust, craftsmanship
+- Warm, trustworthy tone — not salesy
+- Include a subtle CTA (visit us, DM for catalog, etc.)
+- Keep it under 120 words
+- End with 3-4 relevant hashtags`,
+
+    auto: `You are a Universal AI Content Engine. Analyze the image and/or text to AUTOMATICALLY detect the best mode:
+
+DETECTION RULES:
+1. LINKEDIN MODE → if image shows: certificates, office settings, formal attire, awards; OR text contains: "achieved", "learned", "completed", "certified", "promoted"
+2. INSTAGRAM MODE → if image shows: lifestyle, travel, food, fashion, aesthetic settings, casual vibes; OR text has casual/slang language
+3. DM MODE → if text mentions: names like Manu, Bhai, Tanu, Siddhi, Dost, Yaar; OR occasions like birthday, anniversary, wedding
+4. BUSINESS MODE → if image shows: textiles, shop, fabric, inventory; OR text mentions: Shah Pratapmal, shop, textile, business
+
+STATE WHICH MODE YOU DETECTED at the very top like: [DETECTED MODE: LINKEDIN]
+
+Then generate the appropriate content for that mode following these format rules:
+- LINKEDIN: Bold hook + 3 Key Learnings bullets + CTA + 5 hashtags
+- INSTAGRAM: 3 options (Storyteller / Minimalist / Witty)  
+- DM: Natural human message, roast if requested
+- BUSINESS: Heritage-led WhatsApp/Facebook post`
+  };
+
+  const safety = `\n\nSAFETY RULES:
+- If the image appears to contain NSFW, explicit, violent, or inappropriate content, respond ONLY with: "SYSTEM ERROR: Inappropriate content detected. Unable to process."
+- Do not hallucinate or invent details not present in the image or context.
+- Be accurate and grounded in what you can actually see/read.`;
+
+  return modeInstructions[mode] + safety;
+}
+
+// Chip colors per mode
+function chipStyle(mode) {
+  const map = {
+    'LINKEDIN': { bg: 'rgba(0,245,255,0.1)', color: '#00f5ff', border: 'rgba(0,245,255,0.4)' },
+    'INSTAGRAM': { bg: 'rgba(255,0,255,0.1)', color: '#ff00ff', border: 'rgba(255,0,255,0.4)' },
+    'DM': { bg: 'rgba(0,255,136,0.1)', color: '#00ff88', border: 'rgba(0,255,136,0.4)' },
+    'BUSINESS': { bg: 'rgba(255,184,0,0.1)', color: '#ffb800', border: 'rgba(255,184,0,0.4)' },
+  };
+  return map[mode] || map['LINKEDIN'];
+}
+
+// Main generate
+async function generate() {
+  const context = document.getElementById('context-text').value.trim();
+  if (!imageBase64 && !context) {
+    showError('Please upload an image or enter context text before generating.');
+    return;
+  }
+
+  const btn = document.getElementById('gen-btn');
+  const btnText = document.getElementById('btn-text');
+  btn.disabled = true;
+  btnText.textContent = '⟳ PROCESSING...';
+
+  const outputArea = document.getElementById('output-area');
+  const modeChip = document.getElementById('mode-chip');
+  modeChip.style.display = 'none';
+  outputArea.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+
+  try {
+    const messages = [];
+    const userContent = [];
+
+    if (imageBase64) {
+      userContent.push({
+        type: 'image',
+        source: { type: 'base64', media_type: imageMime, data: imageBase64 }
+      });
+    }
+
+    const textPrompt = context
+      ? `Context provided by user: "${context}"\n\nAnalyze the above${imageBase64 ? ' image and ' : ' '}context and generate the appropriate content.`
+      : 'Analyze the image and generate the appropriate content based on what you see.';
+
+    userContent.push({ type: 'text', text: textPrompt });
+    messages.push({ role: 'user', content: userContent });
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: buildPrompt(selectedMode, context),
+        messages
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error?.message || 'API error');
+
+    const raw = (data.content || []).map(b => b.type === 'text' ? b.text : '').join('\n').trim();
+
+    // Check for safety trigger
+    if (raw.toUpperCase().includes('SYSTEM ERROR') && raw.toUpperCase().includes('INAPPROPRIATE')) {
+      outputArea.innerHTML = `<div class="error-block">⚠ SYSTEM ERROR: Inappropriate content detected. Content generation aborted.</div>`;
+      return;
+    }
+
+    // Parse detected mode from auto
+    let detectedMode = null;
+    let displayText = raw;
+    if (selectedMode === 'auto') {
+      const match = raw.match(/\[DETECTED MODE:\s*([A-Z]+)\]/i);
+      if (match) {
+        detectedMode = match[1].toUpperCase();
+        displayText = raw.replace(/\[DETECTED MODE:[^\]]+\]/i, '').trim();
+      }
+    } else {
+      const modeMap = { linkedin:'LINKEDIN', instagram:'INSTAGRAM', dm:'DM', business:'BUSINESS' };
+      detectedMode = modeMap[selectedMode];
+    }
+
+    if (detectedMode) {
+      const s = chipStyle(detectedMode);
+      modeChip.style.cssText = `display:block; background:${s.bg}; color:${s.color}; border:0.5px solid ${s.border}; font-family:'Orbitron',monospace; font-size:0.6rem; letter-spacing:0.15em; padding:4px 12px; border-radius:2px; margin-bottom:1rem; width:fit-content;`;
+      modeChip.textContent = `MODE: ${detectedMode}`;
+    }
+
+    outputArea.innerHTML = '';
+
+    // For Instagram mode, split into 3 blocks
+    const isInsta = detectedMode === 'INSTAGRAM' || selectedMode === 'instagram';
+    if (isInsta) {
+      const parts = splitInstagramOptions(displayText);
+      if (parts.length === 3) {
+        parts.forEach((part, i) => {
+          const labels = ['OPTION A — THE STORYTELLER', 'OPTION B — THE MINIMALIST', 'OPTION C — THE WITTY/SAVAGE'];
+          renderBlock(outputArea, labels[i], part);
+        });
+      } else {
+        renderBlock(outputArea, 'GENERATED CONTENT', displayText);
+      }
+    } else {
+      renderBlock(outputArea, 'GENERATED CONTENT', displayText);
+    }
+
+  } catch (err) {
+    outputArea.innerHTML = `<div class="error-block">⚠ Engine Error: ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btnText.textContent = '⟡ GENERATE CONTENT';
+  }
+}
+
+function splitInstagramOptions(text) {
+  const sep = text.split(/\*\*Option [ABC][^*]*\*\*|Option [ABC][^\n]*\n/i);
+  if (sep.length >= 4) return [sep[1].trim(), sep[2].trim(), sep[3].trim()];
+  // fallback: split by double newlines
+  const parts = text.split(/\n{2,}/).filter(p => p.trim().length > 0);
+  if (parts.length >= 3) return parts.slice(0, 3);
+  return [text];
+}
+
+function renderBlock(container, label, text) {
+  const div = document.createElement('div');
+  div.className = 'output-block';
+  const cleanText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  div.innerHTML = `
+    <div class="output-block-label">// ${label}</div>
+    <div class="output-text">${cleanText}</div>
+    <button class="copy-btn" onclick="copyText(this, \`${escapeBacktick(text)}\`)">COPY</button>
+  `;
+  container.appendChild(div);
+}
+
+function escapeBacktick(str) {
+  return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+}
+
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED!';
+    btn.classList.add('copied');
+    showToast();
+    setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showError(msg) {
+  document.getElementById('output-area').innerHTML = `<div class="error-block">⚠ ${msg}</div>`;
+}
+</script>
 </body>
 </html>
