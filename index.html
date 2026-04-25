@@ -70,7 +70,6 @@
   .tone-emoji { font-size: 1rem; display: block; margin-bottom: 3px; }
   .gen-btn { width: 100%; padding: 0.9rem; background: var(--black); color: var(--white); border: none; border-radius: var(--radius-sm); font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-top: 1rem; }
   .gen-btn:hover { background: var(--gray-900); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-  .gen-btn:active { transform: none; box-shadow: none; }
   .gen-btn:disabled { background: var(--gray-400); cursor: not-allowed; transform: none; box-shadow: none; }
   .tip { background: var(--accent-light); border: 1px solid #bfdbfe; border-radius: var(--radius-sm); padding: 0.7rem 1rem; font-size: 0.78rem; color: #1d4ed8; margin-top: 0.9rem; }
   .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; padding: 1rem; }
@@ -118,7 +117,7 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h2>Gemini API Key</h2>
-    <p>Enter your Gemini API key. It is saved only in your browser — never sent anywhere else. Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a>.</p>
+    <p>Enter your Gemini API key. It is saved only in your browser. Get a free key at <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent)">aistudio.google.com</a>.</p>
     <input type="password" id="api-input" placeholder="AIza..."/>
     <div class="modal-btns">
       <button class="modal-save" onclick="saveKey()">Save Key</button>
@@ -138,7 +137,7 @@
 <div class="page">
   <div class="hero">
     <h1>One photo,<br/><em>five captions.</em></h1>
-    <p>Upload a photo or describe your moment — get ready-to-post captions for Instagram, LinkedIn, Twitter, WhatsApp &amp; Facebook.</p>
+    <p>Upload a photo or describe your moment — get ready-to-post captions for Instagram, LinkedIn, Twitter, WhatsApp & Facebook.</p>
   </div>
 
   <div class="platforms">
@@ -158,7 +157,7 @@
       <div class="upload-zone" id="drop-zone">
         <input type="file" id="img-input" accept="image/*"/>
         <div class="upload-icon-wrap">📷</div>
-        <div class="upload-main">Click to upload or drag &amp; drop</div>
+        <div class="upload-main">Click to upload or drag & drop</div>
         <div class="upload-sub">JPG, PNG, WEBP supported</div>
       </div>
       <div id="preview-wrap">
@@ -174,7 +173,7 @@
       <span class="card-header-title">Add context (optional)</span>
     </div>
     <div class="card-body">
-      <textarea id="context-text" placeholder="E.g. 'Sunset at Goa beach, felt amazing' or 'Just got promoted at work!' or 'Friend's birthday dinner'..."></textarea>
+      <textarea id="context-text" placeholder="E.g. 'Sunset at Goa beach, felt amazing' or 'Just got promoted at work!'..."></textarea>
     </div>
   </div>
 
@@ -204,8 +203,13 @@
 </div>
 
 <script>
+// API KEY INTEGRATION
+let apiKey = localStorage.getItem('gemini_key') || 'AIzaSyCH6zfi7iiLSqE8wHCH7FFMVFOIjg9D8VA';
 let imageBase64 = null, imageMime = null, selectedTone = 'auto';
-let apiKey = localStorage.getItem('gemini_key') || '';
+
+// Save the key initially if it's the one you provided
+if (apiKey) localStorage.setItem('gemini_key', apiKey);
+
 updateApiStatus();
 
 function openModal() { document.getElementById('api-input').value = apiKey; document.getElementById('modal').classList.add('open'); }
@@ -226,11 +230,9 @@ function setTone(t) {
   document.querySelector('[data-tone="' + t + '"]').classList.add('active');
 }
 
+// Image Handling Logic
 const dropZone = document.getElementById('drop-zone');
 document.getElementById('img-input').addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
-dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
 function handleFile(file) {
   if (!file.type.startsWith('image/')) return;
@@ -241,118 +243,91 @@ function handleFile(file) {
     imageMime = file.type;
     document.getElementById('preview-img').src = result;
     document.getElementById('preview-wrap').style.display = 'block';
+    dropZone.style.display = 'none';
   };
   reader.readAsDataURL(file);
 }
+
 function removeImage() {
   imageBase64 = null; imageMime = null;
   document.getElementById('preview-wrap').style.display = 'none';
+  dropZone.style.display = 'block';
   document.getElementById('img-input').value = '';
 }
 
 const PLATFORMS = [
-  { id: 'ig', name: 'Instagram',   emoji: '📸', cls: 'badge-ig' },
-  { id: 'li', name: 'LinkedIn',    emoji: '💼', cls: 'badge-li' },
+  { id: 'ig', name: 'Instagram',    emoji: '📸', cls: 'badge-ig' },
+  { id: 'li', name: 'LinkedIn',     emoji: '💼', cls: 'badge-li' },
   { id: 'tw', name: 'Twitter / X', emoji: '🐦', cls: 'badge-tw' },
   { id: 'wa', name: 'WhatsApp',    emoji: '💬', cls: 'badge-wa' },
   { id: 'fb', name: 'Facebook',    emoji: '👥', cls: 'badge-fb' },
 ];
 
-function buildPrompt() {
-  const tones = {
-    auto: 'Automatically detect the best tone from the image and/or context provided.',
-    fun: 'Fun, playful, lighthearted — casual language, humor welcome.',
-    professional: 'Professional, polished, authoritative and insightful.',
-    minimal: 'Minimal and poetic — clean, less is more.',
-    emotional: 'Warm, heartfelt, emotionally resonant.',
-    witty: 'Witty, clever, sharp — memorable lines.'
-  };
-  return `You are an expert social media copywriter. Tone instruction: ${tones[selectedTone]}
-
-Generate captions for exactly 5 platforms following these rules:
-- Instagram: Engaging, emojis welcome, 5-10 relevant hashtags, max 2200 chars
-- LinkedIn: Professional, bold opening hook, 3-5 industry hashtags, max 3000 chars
-- Twitter/X: Punchy and concise, STRICTLY under 280 characters total including hashtags, 1-2 hashtags max
-- WhatsApp: Conversational and warm, suitable for Status update, no hashtags needed, max 500 chars
-- Facebook: Friendly and story-like, 2-3 hashtags, max 500 chars
-
-Return ONLY valid JSON with no markdown fences, no explanation, no extra text — just the raw JSON object:
-{"ig":"...","li":"...","tw":"...","wa":"...","fb":"..."}
-
-If the image contains inappropriate or NSFW content, return exactly:
-{"error":"Inappropriate content detected. Please use a suitable image."}`;
-}
-
 async function generate() {
   const context = document.getElementById('context-text').value.trim();
-  if (!imageBase64 && !context) { showError('Please upload a photo or add some context first.'); return; }
+  if (!imageBase64 && !context) { alert('Please upload a photo or add some context!'); return; }
   if (!apiKey) { openModal(); return; }
 
   const btn = document.getElementById('gen-btn');
-  btn.disabled = true; btn.textContent = '⏳ Generating...';
+  btn.disabled = true; btn.textContent = '⏳ Writing...';
 
   const out = document.getElementById('output-section');
   const cards = document.getElementById('output-cards');
   out.style.display = 'block';
-  cards.innerHTML = PLATFORMS.map(() =>
-    '<div class="plat-card" style="padding:1.1rem"><div class="skeleton w-half" style="margin-bottom:14px;height:16px"></div><div class="skeleton w-full"></div><div class="skeleton w-3q"></div><div class="skeleton w-full"></div></div>'
-  ).join('');
-  out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  cards.innerHTML = PLATFORMS.map(() => `<div class="plat-card" style="padding:1rem"><div class="skeleton w-half"></div><div class="skeleton w-full"></div></div>`).join('');
+  out.scrollIntoView({ behavior: 'smooth' });
+
+  const prompt = `You are an expert social media copywriter. Tone: ${selectedTone}. 
+  Context: ${context || 'Analyze the image provided'}.
+  Generate 5 different captions for: Instagram (w/ hashtags), LinkedIn (professional), Twitter (short), WhatsApp (casual), and Facebook.
+  Return ONLY a JSON object: {"ig":"","li":"","tw":"","wa":"","fb":""}. No markdown.`;
 
   try {
-    const parts = [];
-    if (imageBase64) parts.push({ inlineData: { mimeType: imageMime, data: imageBase64 } });
-    const userText = (context ? 'User context: "' + context + '"\n\n' : '') + buildPrompt();
-    parts.push({ text: userText });
+    const contents = [{
+      parts: [
+        { text: prompt },
+        ...(imageBase64 ? [{ inlineData: { mimeType: imageMime, data: imageBase64 } }] : [])
+      ]
+    }];
 
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=' + apiKey,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts }] }) }
-    );
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents })
+    });
+
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error?.message || 'API error ' + res.status);
-
-    const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text || '').replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(raw);
-    if (parsed.error) { showError(parsed.error); return; }
+    let text = data.candidates[0].content.parts[0].text;
+    text = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(text);
 
     cards.innerHTML = '';
-    PLATFORMS.forEach((p, i) => {
-      const caption = parsed[p.id] || '';
+    PLATFORMS.forEach(p => {
+      const caption = parsed[p.id];
       const div = document.createElement('div');
       div.className = 'plat-card';
-      div.style.animationDelay = (i * 0.07) + 's';
-      div.innerHTML =
-        '<div class="plat-card-header">' +
-          '<div class="plat-name"><span>' + p.emoji + '</span><span class="plat-badge ' + p.cls + '">' + p.name + '</span></div>' +
-          '<button class="copy-btn" onclick="copyText(this,`' + esc(caption) + '`)">Copy</button>' +
-        '</div>' +
-        '<div class="plat-card-body">' +
-          '<div class="caption-text">' + escHtml(caption) + '</div>' +
-          '<div class="char-count">' + caption.length + ' characters</div>' +
-        '</div>';
+      div.innerHTML = `
+        <div class="plat-card-header">
+          <div class="plat-name"><span>${p.emoji}</span><span class="plat-badge ${p.cls}">${p.name}</span></div>
+          <button class="copy-btn" onclick="copyText(this, \`${caption.replace(/`/g, '\\`')}\`)">Copy</button>
+        </div>
+        <div class="plat-card-body">
+          <div class="caption-text">${caption}</div>
+        </div>`;
       cards.appendChild(div);
     });
-  } catch(e) {
-    showError('Error: ' + e.message);
+  } catch (err) {
+    cards.innerHTML = `<div class="error-card">Failed to generate. Check your API key or connection.</div>`;
   } finally {
     btn.disabled = false; btn.textContent = '✦ Generate Captions';
   }
 }
 
-function showError(msg) {
-  document.getElementById('output-section').style.display = 'block';
-  document.getElementById('output-cards').innerHTML = '<div class="error-card">⚠️ ' + msg + '</div>';
-}
 function copyText(btn, text) {
-  navigator.clipboard.writeText(text).then(() => {
-    btn.textContent = 'Copied!'; btn.classList.add('copied');
-    const t = document.getElementById('toast'); t.classList.add('show');
-    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); t.classList.remove('show'); }, 2000);
-  });
+  navigator.clipboard.writeText(text);
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = 'Copy', 2000);
 }
-function esc(s) { return s.replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
-function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
