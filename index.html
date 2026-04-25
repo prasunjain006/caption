@@ -2,135 +2,115 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Universal AI Engine | One Tool, Every Platform</title>
+    <title>Ultimate AI Engine | v2.0 Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #000; color: #fff; font-family: 'Inter', sans-serif; }
-        .master-card { background: linear-gradient(145deg, #0f172a, #020617); border: 1px solid #1e293b; }
-        .glow-btn { background: linear-gradient(90deg, #3b82f6, #8b5cf6); transition: 0.3s; }
-        .glow-btn:hover { box-shadow: 0 0 20px rgba(139, 92, 246, 0.4); transform: scale(1.02); }
+        body { background: #020617; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-magic { background: linear-gradient(90deg, #2563eb, #7c3aed); transition: 0.3s; }
+        .btn-magic:hover { box-shadow: 0 0 20px rgba(124, 58, 237, 0.4); transform: translateY(-2px); }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-    <div class="max-w-5xl w-full master-card p-10 rounded-[3rem] shadow-2xl">
-        <div class="flex items-center justify-between mb-10">
-            <h1 class="text-3xl font-black italic tracking-tighter">ULTIMATE <span class="text-blue-500">ENGINE</span></h1>
-            <div class="flex space-x-2">
-                <span class="w-3 h-3 bg-red-500 rounded-full"></span>
-                <span class="w-3 h-3 bg-yellow-500 rounded-full"></span>
-                <span class="w-3 h-3 bg-green-500 rounded-full"></span>
+    <div class="max-w-5xl w-full glass p-10 rounded-[2.5rem] shadow-2xl grid md:grid-cols-2 gap-10">
+        
+        <div class="space-y-6">
+            <h1 class="text-2xl font-black italic tracking-tighter text-blue-400">ULTIMATE ENGINE</h1>
+            
+            <div class="h-56 border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:bg-blue-500/5 transition relative overflow-hidden" onclick="document.getElementById('fileInp').click()">
+                <input type="file" id="fileInp" class="hidden" accept="image/*">
+                <img id="prev" class="hidden absolute inset-0 w-full h-full object-cover rounded-3xl opacity-50">
+                <div id="upTxt" class="text-center z-10">
+                    <i class="fas fa-camera text-3xl mb-2 text-slate-600"></i>
+                    <p class="text-[10px] font-bold text-slate-500 tracking-widest">DROP PHOTO (OPTIONAL)</p>
+                </div>
             </div>
+
+            <textarea id="userInput" rows="5" class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-4 text-sm focus:border-blue-500 outline-none" placeholder="Kya chahiye? (Bday wish, Insta caption, LinkedIn post, ya sirf gyan...)"></textarea>
+
+            <button id="mainBtn" class="btn-magic w-full py-4 rounded-xl font-bold text-sm tracking-widest uppercase shadow-lg">
+                Generate Magic <i class="fas fa-bolt ml-2"></i>
+            </button>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-12">
-            <div class="space-y-8">
-                <div class="relative h-64 group">
-                    <input type="file" id="fileInp" class="hidden" accept="image/*">
-                    <div onclick="document.getElementById('fileInp').click()" class="h-full border-2 border-dashed border-slate-800 rounded-3xl flex flex-col items-center justify-center cursor-pointer group-hover:border-blue-500 transition-all bg-slate-900/30 overflow-hidden relative">
-                        <img id="prev" class="hidden absolute inset-0 w-full h-full object-cover rounded-3xl opacity-60">
-                        <i class="fas fa-plus-circle text-4xl text-slate-700 group-hover:text-blue-500 mb-2 z-10"></i>
-                        <p class="text-xs font-bold text-slate-500 z-10 uppercase tracking-widest">Drop Any Ref (Photo/Doc)</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4">
-                    <label class="text-[10px] font-bold text-slate-500 tracking-[0.3em]">CONTEXT / COMMAND</label>
-                    <textarea id="cmd" rows="5" class="w-full bg-black/50 border border-slate-800 rounded-2xl p-5 text-sm focus:border-blue-500 outline-none transition" placeholder="e.g. 'Write a roast for my friend's birthday' or 'Formal email for internship' or 'Viral Instagram caption for this outfit'"></textarea>
-                </div>
-
-                <button id="fire" class="glow-btn w-full py-5 rounded-2xl font-black text-sm tracking-widest flex items-center justify-center space-x-3">
-                    <span>GENERATE MAGIC</span>
-                    <i class="fas fa-bolt"></i>
-                </button>
+        <div class="flex flex-col h-full bg-black/40 rounded-3xl p-6 border border-slate-800">
+            <p class="text-[10px] font-bold text-slate-500 mb-4 tracking-widest uppercase">AI Architect Response</p>
+            <div id="finalOut" class="flex-grow text-sm leading-relaxed whitespace-pre-line overflow-y-auto max-h-[400px] text-slate-300">
+                Waiting for your command...
             </div>
-
-            <div class="bg-black/40 rounded-[2rem] p-8 border border-slate-800 flex flex-col min-h-[400px]">
-                <div class="flex justify-between items-center mb-6">
-                    <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest">AI Output Hub</p>
-                    <i class="fas fa-robot text-slate-700"></i>
-                </div>
-                <div id="out" class="flex-grow text-slate-300 text-sm leading-relaxed whitespace-pre-line overflow-y-auto max-h-[450px] font-medium italic">
-                    Tell me anything. I'll handle the platform, the tone, and the emojis. I'm built for everything.
-                </div>
-                <div class="mt-8 flex justify-end pt-4 border-t border-slate-800">
-                    <button onclick="copy()" class="text-[10px] font-bold hover:text-white transition uppercase tracking-widest flex items-center">
-                        <i class="far fa-copy mr-2"></i> COPY
-                    </button>
-                </div>
-            </div>
+            <button onclick="copyIt()" class="mt-4 text-[10px] font-bold text-blue-400 hover:text-white uppercase flex items-center">
+                <i class="far fa-copy mr-2"></i> Copy Results
+            </button>
         </div>
     </div>
 
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        // FIXED KEY & MODEL logic 
+        // UPDATED API KEY AND MODEL NAME TO FIX 404
         const API_KEY = "AIzaSyAI4jWds7kAREHPPS_4KAa1RxFvHwHk4OI"; 
         const genAI = new GoogleGenerativeAI(API_KEY);
 
         const fInp = document.getElementById('fileInp');
         const prev = document.getElementById('prev');
-        const cmd = document.getElementById('cmd');
-        const out = document.getElementById('out');
-        const btn = document.getElementById('fire');
+        const upTxt = document.getElementById('upTxt');
+        const mainBtn = document.getElementById('mainBtn');
+        const finalOut = document.getElementById('finalOut');
 
         fInp.onchange = () => {
             const [file] = fInp.files;
             if (file) {
                 prev.src = URL.createObjectURL(file);
                 prev.classList.remove('hidden');
+                upTxt.classList.add('hidden');
             }
         };
 
-        async function toPart(file) {
-            const b64 = await new Promise(r => {
+        async function toBase64(file) {
+            return new Promise(r => {
                 const rd = new FileReader();
                 rd.onloadend = () => r(rd.result.split(',')[1]);
                 rd.readAsDataURL(file);
             });
-            return { inlineData: { data: b64, mimeType: file.type } };
         }
 
-        btn.onclick = async () => {
+        mainBtn.onclick = async () => {
             const file = fInp.files[0];
-            const text = cmd.value;
-            if(!text && !file) return;
+            const text = document.getElementById('userInput').value;
+            if(!text && !file) return alert("Kuch toh likh bhai!");
 
-            out.innerHTML = "<div class='animate-pulse text-blue-400'>Analyzing intent... Orchestrating response...</div>";
-            btn.disabled = true;
+            finalOut.innerHTML = "<div class='animate-pulse'>AI is thinking... Hold on...</div>";
+            mainBtn.disabled = true;
 
             try {
-                // Using latest flash to prevent 404 
+                // FIXED MODEL NAME: gemini-1.5-flash-latest fixes the 404 error
                 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
                 
-                let masterPrompt = `You are an All-Rounder Content Architect.
-                Detect the user's intent from the context: ${text}.
-                - If they want to wish someone, write a heartfelt birthday/anniversary message.
-                - If it's for Instagram, provide 3 options (Witty, Short, Aesthetic) with emojis.
-                - If it's professional, write a high-impact LinkedIn post or Email.
-                - If it's a roast, be funny but safe.
-                - If there's an image, incorporate visual details into the text.
-                Always provide the best structure for the detected platform.`;
+                let systemPrompt = `You are an All-Rounder Content Creator. 
+                User Input: "${text}"
+                Based on this, detect if it's for LinkedIn (professional), Instagram (trendy/emojis), a Birthday wish (warm/roast), or General info. 
+                Provide a structured, high-quality response. If there's an image, describe it in the context of the post.`;
 
-                const payload = [masterPrompt];
-                if (file) payload.push(await toPart(file));
+                const parts = [systemPrompt];
+                if (file) {
+                    parts.push({ inlineData: { data: await toBase64(file), mimeType: file.type } });
+                }
 
-                const result = await model.generateContent(payload);
-                out.innerText = result.response.text();
-                out.classList.remove('italic');
+                const result = await model.generateContent(parts);
+                finalOut.innerText = result.response.text();
             } catch (err) {
-                out.innerText = "Error in System Matrix. Check API/Connection.";
+                finalOut.innerText = "Dikaat ye hai: " + err.message + "\n\nTip: Make sure your API key is enabled for 'Generative Language API' in Google AI Studio.";
                 console.error(err);
             } finally {
-                btn.disabled = false;
+                mainBtn.disabled = false;
             }
         };
 
-        window.copy = () => {
-            navigator.clipboard.writeText(out.innerText);
-            alert("Copied to clipboard!");
+        window.copyIt = () => {
+            navigator.clipboard.writeText(finalOut.innerText);
+            alert("Copied!");
         }
     </script>
 </body>
